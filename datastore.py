@@ -31,8 +31,8 @@ def create_table(conn, create_table_sql):
         print(e)
 
 
-def main():
-    database = r"C:\sqlite\db\pythonsqlite.db"
+def main(self):
+    database = "netflix.db"
 
     cret_show = """
         CREATE TABLE "Show" (
@@ -95,7 +95,7 @@ def main():
         # create projects table
         create_table(conn, cret_show,cret_actor,cret_catagory,cret_country,cret_dir,cret_rating,cret_show)
     else:
-        print("Error! cannot create the database connection.")
+        print("uh oh no db lol")
 
 
 if __name__ == '__main__':
