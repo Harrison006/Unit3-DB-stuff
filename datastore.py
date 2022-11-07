@@ -6,100 +6,116 @@ from unittest import result
 
 
 class Datastore:
-    def __init__(self):
+    def __init__(self, db_file_name: str):
+
+        self.conn = sqlite3.connect(netflix.db)
+        self.cur = self.conn.cursor()
+
+
+        self.build_db()
+
+    def __del__(self):
         """
-        intialise datastore by connecting to the sqlite db
+        writes data from cache to drive then closes connection
         """
-        db_file = "netflix.db"
-
-# create methods
-def create_connection(db_file):
-    conn = None
-    try:
-        conn = sqlite3.connect(db_file)
-        return conn
-    except Error as e:
-        print(e)
-
-    return conn
-
-def create_table(conn, create_table_sql):
-    try:
-        c = conn.cursor()
-        c.execute(create_table_sql)
-    except Error as e:
-        print(e)
+        self.conn.close()
 
 
-def main(self):
-    database = "netflix.db"
-
-    cret_show = """
-        CREATE TABLE "Show" (
-        "show_id"	INTEGER,
-        "name"	TEXT NOT NULL,
-        "TYPE"	TEXT NOT NULL,
-        "date_added"	TEXT,
-        "date_released"	INTEGER,
-        "Duration"	TEXT,
-        "Description"	TEXT,
-        PRIMARY KEY("show_id" AUTOINCREMENT)
-        )
+    def build_db(self):
         """
-
-
-    cret_dir ="""
-            CREATE TABLE "director" (
-            "dir_id"	INTEGER,
-            "name"	TEXT NOT NULL,
-            PRIMARY KEY("dir_id" AUTOINCREMENT)
-            )
+        Makes DB file with tables
+        """
+        self.cur.execute(
             """
-
-    cret_rating ="""
             CREATE TABLE "rating" (
             "rating_id"	INTEGER,
             "name"	TEXT NOT NULL,
             PRIMARY KEY("dir_id" AUTOINCREMENT)
             )
             """
-
-    cret_actor ="""
+        )
+        """
+        Rating table made
+        """
+        self.cur.execute(
+            """
             CREATE TABLE "actor" (
             "actor_id"	INTEGER,
             "name"	TEXT,
             PRIMARY KEY("actor_id" AUTOINCREMENT)
             )
             """
-
-    cret_country ="""
+        )
+        self.cur.execute(
+            """
+            CREATE TABLE "director" (
+            "dir_id"	INTEGER,
+            "name"	TEXT NOT NULL,
+            PRIMARY KEY("dir_id" AUTOINCREMENT)
+            )
+            """
+        )
+        """
+        Makes Director Table
+        """
+        self.cur.execute(
+            """
+            CREATE TABLE "Show" (
+            "show_id"	INTEGER,
+            "name"	TEXT NOT NULL,
+            "TYPE"	TEXT NOT NULL,
+            "date_added"	TEXT,
+            "date_released"	INTEGER,
+            "Duration"	TEXT,
+            "Description"	TEXT,
+            PRIMARY KEY("show_id" AUTOINCREMENT)
+            )
+            """
+        )
+        """
+        Makes Show table
+        """
+        self.cur.execute(
+            """
             CREATE TABLE "country" (
             "country_id"	INTEGER,
             "name"	TEXT,
             PRIMARY KEY("country_id" AUTOINCREMENT)
-            )
+            ) 
             """
-
-    cret_catagory ="""
+        )
+        """
+        Makes Country table
+        """
+        self.cur.execute(
+            """
             CREATE TABLE "catagory" (
             "cat_id"	INTEGER,
             "name"	TEXT,
             PRIMARY KEY("cat_id" AUTOINCREMENT)
             )
             """
-    # create a database connection
-    conn = create_connection(database)
+        )
+        """
+        Makes Catagory table
+        """
+        
+        # Join tables
 
-    # create tables
-    if conn is not None:
-        # create projects table
-        create_table(conn, cret_show,cret_actor,cret_catagory,cret_country,cret_dir,cret_rating,cret_show)
-    else:
-        print("uh oh no db lol")
+        self.cur.execute(
+            """
+            CREATE TABLE show_director(
+                show_id TEXT NOT NULL,
+                dir_id INTEGER NOT NULL,
+                PRIMARY KEY (show_id, dir_id)
+                FOREIGN KEY (show_id) REFERENCES Show(show_id)
+                FOREIGN KET (dir_id) REFERENCES director(dir_id)
+            )
+            """
+        )
 
+# create methods
 
-if __name__ == '__main__':
-    main()
 
 # get methods
 

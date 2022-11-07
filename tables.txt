@@ -1,0 +1,53 @@
+cret_show = """
+        CREATE TABLE "Show" (
+        "show_id"	INTEGER,
+        "name"	TEXT NOT NULL,
+        "TYPE"	TEXT NOT NULL,
+        "date_added"	TEXT,
+        "date_released"	INTEGER,
+        "Duration"	TEXT,
+        "Description"	TEXT,
+        PRIMARY KEY("show_id" AUTOINCREMENT)
+        )
+        """
+
+
+    cret_dir ="""
+            CREATE TABLE "director" (
+            "dir_id"	INTEGER,
+            "name"	TEXT NOT NULL,
+            PRIMARY KEY("dir_id" AUTOINCREMENT)
+            )
+            """
+
+    cret_rating ="""
+            CREATE TABLE "rating" (
+            "rating_id"	INTEGER,
+            "name"	TEXT NOT NULL,
+            PRIMARY KEY("dir_id" AUTOINCREMENT)
+            )
+            """
+
+    cret_actor ="""
+            CREATE TABLE "actor" (
+            "actor_id"	INTEGER,
+            "name"	TEXT,
+            PRIMARY KEY("actor_id" AUTOINCREMENT)
+            )
+            """
+
+    cret_country ="""
+            CREATE TABLE "country" (
+            "country_id"	INTEGER,
+            "name"	TEXT,
+            PRIMARY KEY("country_id" AUTOINCREMENT)
+            )
+            """
+
+    cret_catagory ="""
+            CREATE TABLE "catagory" (
+            "cat_id"	INTEGER,
+            "name"	TEXT,
+            PRIMARY KEY("cat_id" AUTOINCREMENT)
+            )
+            """
