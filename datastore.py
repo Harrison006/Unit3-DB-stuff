@@ -113,7 +113,41 @@ class Datastore:
             )
             """
         )
+        self.cur.execute(
+            """
+            CREATE TABLE cast(
+                show_id TEXT NOT NULL,
+                actor_id INTEGER NOT NULL,
+                PRIMARY KEY (show_id, actor_id),
+                FOREIGN KEY (show_id) REFERENCES Show(show_id)
+                FOREIGN KEY (actor_id) REFERENCES actor(actor_id)
+            )
+            """
+        )
+        self.cur.execute(
+            """
+            CREATE TABLE show_country(
+                show_id TEXT NOT NULL,
+                actor_id INTEGER NOT NULL,
+                PRIMARY KEY (show_id, country_id),
+                FOREIGN KEY (show_id) REFERENCES Show(show_id)
+                FOREIGN KEY (country_id) REFERENCES country(country_id)
+            )
+            """
+        )
+        self.cur.execute(
+            """
+            CREATE TABLE show_catagory(
+                show_id TEXT NOT NULL,
+                actor_id INTEGER NOT NULL,
+                PRIMARY KEY (show_id, cat_id),
+                FOREIGN KEY (show_id) REFERENCES Show(show_id)
+                FOREIGN KEY (cat_id) REFERENCES cat_id(cat_id)
+            )
+            """
+        )
 
+        self.conn.commit()
 # create methods
 
 
