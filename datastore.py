@@ -115,7 +115,7 @@ class Datastore:
 
         self.connection.commit()
 
-    def populate_db(self):
+        def populate_db(self):
         
         with open ("digital.csv", encoding="utf-8") as netflix_file:
             csv_reader = csv.DictReader(netflix_file, delimiter= ",")
