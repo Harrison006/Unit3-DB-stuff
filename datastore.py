@@ -115,27 +115,30 @@ class Datastore:
 
         self.connection.commit()
 
-        def populate_db(self):
+    def populate_db(self):
         
-        with open ("digital.csv", encoding="utf-8") as netflix_file:
-            csv_reader = csv.DictReader(netflix_file, delimiter= ",")
+        with open ("digital.csv", encoding="utf-8") as netflix_movies____5:
+            csv_reader = csv.DictReader(netflix_movies____5, delimiter= ",")
 
             for record in csv_reader:
-                if record["rating"]:
+                if record["show_id"]:
                     if record["rating"] not in self.get_all_ratings():
                         self.add_rating(record["rating"])
                     rating_id = self.get_rating_id(record["rating"])
-                    if record["type","title","date_added","release_year","duration","description"]:
-                        if record["type","title","date_added","release_year","duration","description"] not in self.get_all_shows():
-                            self.add_show_table(record["type","title","date_added","release_year","duration","description"],rating_id)
-                        
+                    show_id = self.get_show_id
+                    print(show_id)
+                    self.add_show_table(record["show_id"],
+                        record["type"], 
+                        record["title"],
+                        record["date_added"],
+                        record["release_year"],
+                        record["duration"],
+                        record["description"],rating_id)
+                    if record["director"]:
+                        self.add_director(record["director"])
                     
-
-                
+                        
             
-                
-        self.cursor.commit()
-
     def get_all_ratings(self):
         self.cursor.execute(
             """
@@ -149,7 +152,7 @@ class Datastore:
             processed.append(results[0])
         return processed
 
-    def get_rating_id(self, name: str) -> int:
+    def get_rating_id(self, name):
         self.cursor.execute(
             """
             SELECT rating_id 
@@ -163,36 +166,8 @@ class Datastore:
         
         results = self.cursor.fetchone()
 
-        return results
-
-    def add_rating(self, name):
-        self.cursor.execute(
-                    """
-                    INSERT INTO rating_tb(name)
-                    VALUES (:name)
-
-                    """,
-                {
-                    "name":name[0]
-                }
-                    )
-    def add_show_table(self, type, name, date_added, release_year, duration, description, rating_id):
-        self.cursor.execute(
-            """ 
-            INSERT INTO show_tb
-            values (:name,:type,:date_added,:release_year,:rating_id,:duration,:description)
-            """,
-            {
-                "name":name,
-                "type":type,
-                "date_added":date_added,
-                "release_year":release_year,
-                "duration":duration,
-                "description":description,
-                "rating_id":rating_id
-
-            }
-        )
+        return results[0]
+        
     def get_all_shows(self):
         self.cursor.execute(
             """
@@ -205,3 +180,73 @@ class Datastore:
         for result in results:
             shows.append(result[0])
         return shows
+    def get_show_id(self,show_id):
+        self.cursor.execute(
+            """
+            SELECT show_id
+            FROM show_tb
+            WHERE show_id = :show_id
+            """,
+            {
+                "show_id":show_id
+            }
+        )
+
+    def get_all_dir(self):
+        """
+        gets all directors
+        """
+        self.cur.execute(
+            """
+            SELECT *
+            FROM directors
+            """
+        )
+
+    def add_rating(self, name):
+        self.cursor.execute(
+                    """
+                    INSERT INTO rating_tb(name)
+                    VALUES (:name)
+
+                    """,
+                {
+                    "name":name
+                }
+                    )
+        self.connection.commit()
+
+    def add_show_table(self, show_id, type, name, date_added, release_year, duration, description, rating_id):
+        self.cursor.execute(
+            """ 
+            INSERT INTO show_tb(show_id,title,type,date_added,release_year,rating,duration,description)
+            values (:show_id,:name,:type,:date_added,:release_year,:rating_id,:duration,:description)
+            """,
+            {
+                "show_id":show_id,
+                "name":name,
+                "type":type,
+                "date_added":date_added,
+                "release_year":release_year,
+                "duration":duration,
+                "description":description,
+                "rating_id":rating_id
+
+            }
+        )
+    def add_director(self,name):
+        self.cursor.execute(
+            """
+            INSERT INTO director_tb(name)
+            VALUES (:name)
+            """,
+            {
+                "name":name
+            }
+        )
+        self.connection.commit()
+
+
+
+
+
