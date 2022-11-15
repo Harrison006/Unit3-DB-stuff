@@ -1,4 +1,9 @@
+import os
 from unittest import result
 from datastore import Datastore
 
-db = Datastore("ye.db")
+db_file = "netflix.db"
+
+os.remove(db_file)
+
+db = Datastore(db_file)
