@@ -148,7 +148,7 @@ class Datastore:
                                 with open("error_log.txt", "a", encoding="utf-8") as log:
                                     log.write(f"duplicate of director {director} in show {show_id}\n")
                         
-                    
+                self.connection.commit()   
                     
             
     def get_all_ratings(self):
@@ -247,7 +247,7 @@ class Datastore:
                     "name":name
                 }
                     )
-        self.connection.commit()
+
 
     def add_show_table(self, show_id, type, name, date_added, release_year, duration, description, rating_id):
         self.cursor.execute(
@@ -277,8 +277,7 @@ class Datastore:
                 "name":name
             }
         )
-        self.connection.commit()
-    
+            
     def add_show_dir(self,show_id,dir_id):
         """
         add show director
