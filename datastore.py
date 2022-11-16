@@ -134,10 +134,21 @@ class Datastore:
                         record["release_year"],
                         record["duration"],
                         record["description"],rating_id)
-                    if record["director"]:
-                        self.add_director(record["director"])
                     
+                    # add director
+                    if record["director"] != "":
+                        for director in record["director"].split(", "):
+                            if director not in self.get_all_dir():
+                                self.add_director(director)
+                            dir_id = self.get_dir_id(director)
+                            try:
+                                self.add_show_dir(show_id, dir_id)
+                            except Exception:
+                                with open("error_log.txt", "a", encoding="utf-8") as log:
+                                    log.write(f"duplicate of director {director} in show {show_id}\n")
                         
+                    
+                    
             
     def get_all_ratings(self):
         self.cursor.execute(
@@ -245,8 +256,21 @@ class Datastore:
             }
         )
         self.connection.commit()
-
-
+    
+    def add_show_dir(self,show_id,dir_id):
+        """
+        add show director
+        """
+        self.cursor.execute(
+            """
+            INSERT INTO show_director(show_id,dir_id)
+            VALUE (:show_id, :dir_id)
+            """
+        ),
+        {
+            "show_id":show_id,
+            "dir_id":dir_id
+        }
 
 
 
