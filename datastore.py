@@ -7,18 +7,20 @@ class Datastore:
 
         self.connection = sqlite3.connect(db_file_name)
         self.cursor = self.connection.cursor()
-        
+
         self.build_db()
+        self.populate_db()
 
     def __del__(self):
         self.connection.close()
 
     def build_db(self):
+
         self.cursor.execute(
             """
-            CREATE TABLE rating_db(
+            CREATE TABLE rating_tb(
                 rating_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL
+                name TEXT NOT NULL 
             )
             """
         )
@@ -126,8 +128,8 @@ class Datastore:
                     if record["rating"] not in self.get_all_ratings():
                         self.add_rating(record["rating"])
                     rating_id = self.get_rating_id(record["rating"])
-                    show_id = self.get_show_id
-                    print(show_id)
+                    show_id = record["show_id"]
+                    
                     self.add_show_table(record["show_id"],
                         record["type"], 
                         record["title"],
@@ -135,27 +137,40 @@ class Datastore:
                         record["release_year"],
                         record["duration"],
                         record["description"],rating_id)
-                    
-                    # add director
+                    #add director
                     if record["director"] != "":
-                        for director in record["director"].split(", "):
-                            if director not in self.get_all_dir():
+                        for director in record["director"].split(","):
+                            if director not in self.get_all_directors():
                                 self.add_director(director)
-                            dir_id = self.get_dir_id(director)
+                            dir_id = self.get_director_id(director)
                             try:
-                                self.add_show_dir(show_id, dir_id)
+                                self.add_show_director_table(show_id,dir_id)
                             except Exception:
                                 with open("error_log.txt", "a", encoding="utf-8") as log:
-                                    log.write(f"duplicate of director {director} in show {show_id}\n")
+                                    log.write(f"Duplicate of director {director} in show {show_id}\n")
+                    if record["cast"] != "":
+                        for actor in record["cast"].split(","):
+                            if actor not in self.get_all_cast():
+                                self.add_actor(actor)
+                            actor_id = self.get_actor_id(actor)
+                            try:
+                                self.add_cast_tb(show_id,actor_id)
+                            except Exception:
+                                with open("error_log.txt", "a", encoding="utf-8") as log:
+                                    log.write(f"Duplicate of actor {actor} in show {show_id}\n")                           
+                print(show_id)
+                self.connection.commit() 
+                                
+
                         
-                self.connection.commit()   
-                    
             
+
+       
     def get_all_ratings(self):
         self.cursor.execute(
             """
             SELECT name
-            FROM rating_db
+            FROM rating_tb
             """
         )
         results = self.cursor.fetchall()
@@ -168,11 +183,11 @@ class Datastore:
         self.cursor.execute(
             """
             SELECT rating_id 
-            FROM rating_db
+            FROM rating_tb
             WHERE name = :name
             """,
             {
-                "name":name
+               "name":name
             }
         )
         
@@ -192,38 +207,7 @@ class Datastore:
         for result in results:
             shows.append(result[0])
         return shows
-    def get_show_id(self,show_id):
-        self.cursor.execute(
-            """
-            SELECT show_id
-            FROM show_tb
-            WHERE show_id = :show_id
-            """,
-            {
-                "show_id":show_id
-            }
-        )
-
-    def get_all_dir(self):
-        """
-        gets all directors
-        """
-        self.cursor.execute(
-            """
-            SELECT *
-            FROM director_tb
-            """
-        )
-        results = self.cursor.fetchall()
-        shows = []
-        for result in results:
-            shows.append(result[0])
-        return shows
-
-    def get_dir_id(self,name):
-        """
-        Gets director ID
-        """
+    def get_director_id(self,name):
         self.cursor.execute(
             """
             SELECT dir_id
@@ -234,12 +218,52 @@ class Datastore:
                 "name":name
             }
         )
+        result = self.cursor.fetchone()
+        return result[0]
 
-# add methods
+    def get_all_directors(self):
+        self.cursor.execute(
+            """
+            SELECT name 
+            FROM director_tb
+            """
+        )
+        results = self.cursor.fetchall()
+        processed = []
+        for results in results:
+            processed.append(results[0])
+        return processed
+    
+    def get_all_cast(self):
+        self.cursor.execute(
+            """
+            SELECT name
+            FROM actor_tb
+            """
+        )
+        results = self.cursor.fetchall()
+        processed = []
+        for results in results:
+            processed.append(results[0])
+        return processed
+    def get_actor_id(self,name):
+        self.cursor.execute(
+            """
+            SELECT actor_id
+            FROM actor_tb
+            WHERE name = :name
+            """,
+            {
+                "name":name
+            }
+        )
+        result = self.cursor.fetchone()
+        return result[0]
+
     def add_rating(self, name):
         self.cursor.execute(
                     """
-                    INSERT INTO rating_db(name)
+                    INSERT INTO rating_tb(name)
                     VALUES (:name)
 
                     """,
@@ -247,7 +271,6 @@ class Datastore:
                     "name":name
                 }
                     )
-
 
     def add_show_table(self, show_id, type, name, date_added, release_year, duration, description, rating_id):
         self.cursor.execute(
@@ -277,21 +300,38 @@ class Datastore:
                 "name":name
             }
         )
-            
-    def add_show_dir(self,show_id,dir_id):
-        """
-        add show director
-        """
+
+    def add_show_director_table(self,show_id,dir_id):
         self.cursor.execute(
             """
             INSERT INTO show_director(show_id,dir_id)
-            VALUE (:show_id, :dir_id)
+            VALUES (:show_id,:dir_id)
+            """,
+            {
+                "show_id":show_id,
+                "dir_id":dir_id
+            }
+        )
+    def add_actor(self,name):
+        self.cursor.execute(
             """
-        ),
-        {
-            "show_id":show_id,
-            "dir_id":dir_id
-        }
-
+            INSERT INTO actor_tb(name)
+            VALUES(:name)
+            """,
+            {
+                "name":name
+            }
+        )
+    def add_cast_tb(self,show_id,actor_id):
+        self.cursor.execute(
+            """
+            INSERT INTO cast_tb(show_id,actor_id)
+            VALUES(:show_id,:actor_id)
+            """,
+            {
+                "show_id":show_id,
+                "actor_id":actor_id
+            }
+        )
 
 

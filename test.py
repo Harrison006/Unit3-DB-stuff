@@ -2,7 +2,7 @@ import os
 from unittest import result
 from datastore import Datastore
 
-db_file = "net1fli1x.db"
+db_file = "netflix.db"
 
 os.remove(db_file)
 

@@ -20323,3 +20323,6 @@ duplicate of director David Fincher in show <bound method Datastore.get_show_id 
 duplicate of director Ruben Fleischer in show <bound method Datastore.get_show_id of <datastore.Datastore object at 0x000001C102A471F0>>
 duplicate of director Peter Hewitt in show <bound method Datastore.get_show_id of <datastore.Datastore object at 0x000001C102A471F0>>
 duplicate of director Mozez Singh in show <bound method Datastore.get_show_id of <datastore.Datastore object at 0x000001C102A471F0>>
+Duplicate of actor  Micah Hauptman in show s1632
+Duplicate of actor  Adrianna Biedrzyńska in show s6014
+Duplicate of actor  Micah Hauptman in show s1632
