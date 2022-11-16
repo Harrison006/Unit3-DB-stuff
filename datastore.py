@@ -1,4 +1,5 @@
 import sqlite3
+import csv
 
 class Datastore:
 
@@ -6,7 +7,7 @@ class Datastore:
 
         self.connection = sqlite3.connect(db_file_name)
         self.cursor = self.connection.cursor()
-
+        
         self.build_db()
 
     def __del__(self):
@@ -117,7 +118,7 @@ class Datastore:
 
     def populate_db(self):
         
-        with open ("digital.csv", encoding="utf-8") as netflix_movies____5:
+        with open ("netflix_titles.csv", encoding="utf-8") as netflix_movies____5:
             csv_reader = csv.DictReader(netflix_movies____5, delimiter= ",")
 
             for record in csv_reader:
@@ -154,7 +155,7 @@ class Datastore:
         self.cursor.execute(
             """
             SELECT name
-            FROM rating_tb
+            FROM rating_db
             """
         )
         results = self.cursor.fetchall()
@@ -167,7 +168,7 @@ class Datastore:
         self.cursor.execute(
             """
             SELECT rating_id 
-            FROM rating_tb
+            FROM rating_db
             WHERE name = :name
             """,
             {
@@ -207,17 +208,38 @@ class Datastore:
         """
         gets all directors
         """
-        self.cur.execute(
+        self.cursor.execute(
             """
             SELECT *
-            FROM directors
+            FROM director_tb
             """
         )
+        results = self.cursor.fetchall()
+        shows = []
+        for result in results:
+            shows.append(result[0])
+        return shows
 
+    def get_dir_id(self,name):
+        """
+        Gets director ID
+        """
+        self.cursor.execute(
+            """
+            SELECT dir_id
+            FROM director_tb
+            WHERE name = :name
+            """,
+            {
+                "name":name
+            }
+        )
+
+# add methods
     def add_rating(self, name):
         self.cursor.execute(
                     """
-                    INSERT INTO rating_tb(name)
+                    INSERT INTO rating_db(name)
                     VALUES (:name)
 
                     """,
