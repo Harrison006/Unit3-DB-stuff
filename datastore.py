@@ -120,7 +120,7 @@ class Datastore:
 
     def populate_db(self):
         
-        with open ("netflix_titles.csv", encoding="utf-8") as netflix_movies____5:
+        with open ("digital.csv", encoding="utf-8") as netflix_movies____5:
             csv_reader = csv.DictReader(netflix_movies____5, delimiter= ",")
 
             for record in csv_reader:
@@ -129,6 +129,7 @@ class Datastore:
                         self.add_rating(record["rating"])
                     rating_id = self.get_rating_id(record["rating"])
                     show_id = record["show_id"]
+                    print(show_id)
                     
                     self.add_show_table(record["show_id"],
                         record["type"], 
@@ -157,15 +158,23 @@ class Datastore:
                                 self.add_cast_tb(show_id,actor_id)
                             except Exception:
                                 with open("error_log.txt", "a", encoding="utf-8") as log:
-                                    log.write(f"Duplicate of actor {actor} in show {show_id}\n")                           
-                print(show_id)
+                                    log.write(f"Duplicate of actor {actor} in show {show_id}\n")   
+                    if record["country"] !="":
+                        for country in record["country"].split(","):
+                            if country not in self.get_all_countrys():
+                                self.add_country(country)
+                            country_id = self.get_country_id(country)  
+                            try:
+                                self.add_show_country_tb(show_id,country_id)
+                            except Exception:
+                                with open("error_log.txt", "a", encoding="utf-8") as log:
+                                    log.write(f"Duplicate of country {country} in show {show_id}\n")                
+                            
                 self.connection.commit() 
                                 
 
                         
             
-
-       
     def get_all_ratings(self):
         self.cursor.execute(
             """
@@ -187,7 +196,7 @@ class Datastore:
             WHERE name = :name
             """,
             {
-               "name":name
+                "name":name
             }
         )
         
@@ -259,6 +268,29 @@ class Datastore:
         )
         result = self.cursor.fetchone()
         return result[0]
+    def get_all_countrys(self):
+        self.cursor.execute(
+            """
+            SELECT name 
+            FROM country_tb
+            """
+        )
+        results = self.cursor.fetchall()
+        processed = []
+        for results in results:
+            processed.append(results[0])
+        return processed
+    def get_country_id(self,name):
+        self.cursor.execute(
+            """
+            SELECT country_id
+            FROM country_tb
+            WHERE name = :name
+            """,
+            {
+                "name":name
+            }
+        )
 
     def add_rating(self, name):
         self.cursor.execute(
@@ -333,5 +365,25 @@ class Datastore:
                 "actor_id":actor_id
             }
         )
-
+    def add_country(self,name):
+        self.cursor.execute(
+            """
+            INSERT INTO country_tb(name)
+            VALUES(:name)
+            """,
+            {
+                "name":name
+            }
+        )
+    def add_show_country_tb(self,show_id,country_id):
+        self.cursor.execute(
+            """
+            INSERT INTO show_country_tb(show_id,country_id)
+            VALUES(:show_id,:country_id)
+            """,
+            {
+                "show_id":show_id,
+                "country_id":country_id
+            }
+        )
 
