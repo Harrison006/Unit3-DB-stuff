@@ -388,6 +388,7 @@ class Datastore:
         )
 
     def add_show_country_tb(self, show_id, country_id):
+        # adding Show_id and Country_id on one table
         self.cursor.execute(
             """
             INSERT INTO show_country_tb(show_id,country_id)
