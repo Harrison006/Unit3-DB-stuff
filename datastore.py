@@ -184,10 +184,19 @@ class Datastore:
                                     log.write(
                                         f"Duplicate of country {country} in show {show_id}\n"
                                     )
+                    for category in record["listed_in"].split(","):
+                        if category not in self.get_all_category():
+                            self.add_category(category)
+                        category_id = self.get_category_id(category)
+                        try:
+                            self.add_show_category(show_id, category_id)
+                        except Exception:
+                            with open("error_log.txt", "a", encoding="utf-8") as log:
+                                log.write(
+                                    f"Duplicate of category {category} in show {show_id}\n"
+                                )
 
                 self.connection.commit()
-
-    # get methods
 
     def get_all_ratings(self):
         self.cursor.execute(
@@ -301,8 +310,33 @@ class Datastore:
             """,
             {"name": name},
         )
+        result = self.cursor.fetchone()
+        return result[0]
 
-    # add methods
+    def get_all_category(self):
+        self.cursor.execute(
+            """
+            SELECT name 
+            FROM category_tb
+            """
+        )
+        results = self.cursor.fetchall()
+        processed = []
+        for results in results:
+            processed.append(results[0])
+        return processed
+
+    def get_category_id(self, name):
+        self.cursor.execute(
+            """
+            SELECT name
+            FROM category_tb
+            WHERE name = :name
+            """,
+            {"name": name},
+        )
+        result = self.cursor.fetchone()
+        return result[0]
 
     def add_rating(self, name):
         self.cursor.execute(
@@ -388,11 +422,28 @@ class Datastore:
         )
 
     def add_show_country_tb(self, show_id, country_id):
-        # adding Show_id and Country_id on one table
         self.cursor.execute(
             """
             INSERT INTO show_country_tb(show_id,country_id)
             VALUES(:show_id,:country_id)
             """,
             {"show_id": show_id, "country_id": country_id},
+        )
+
+    def add_category(self, name):
+        self.cursor.execute(
+            """
+            INSERT INTO category_tb(name)
+            VALUES(:name)
+            """,
+            {"name": name},
+        )
+
+    def add_show_category(self, show_id, category_id):
+        self.cursor.execute(
+            """
+            INSERT INTO show_category_tb(show_id,cat_id)
+            VALUES(:show_id,:category_id)
+            """,
+            {"show_id": show_id, "category_id": category_id},
         )
